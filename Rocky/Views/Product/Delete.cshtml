@@ -1,0 +1,85 @@
+﻿@model Rocky.Models.Product
+
+@{
+    var title = "Delete Product";
+}
+
+<form method="post" asp-controller="Delete" class="mt-4">
+    <input asp-for="Id" hidden />
+    <div class="row mx-auto">
+
+        <div class="col-12 mb-4">
+            <h2>@title</h2>
+        </div>
+        <div class="col-8">
+
+            <div class="mb-3 form-group">
+                <label asp-for="Name" class="mb-2"></label>
+                <input asp-for="Name" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3 form-group">
+                <label asp-for="Price" class="mb-2"></label>
+                <input asp-for="Price" class="form-control" readonly>
+            </div>
+
+                        <div class="mb-3 form-group">
+                <label asp-for="ShortDesc" class="mb-2"></label>
+                <input asp-for="ShortDesc" class="form-control" readonly>
+            </div>
+
+            <div class="mb-3 form-group">
+                <label asp-for="Description" class="mb-2"></label>
+                <textarea asp-for="Description" class="form-control summernote"></textarea>
+            </div>
+
+@*            <div class="mb-3 form-group">
+                <label asp-for="Image" class="mb-2"></label>
+                <input asp-for="Image" type="file" name="file" multiple id="uploadBox" class="form-control">
+            </div>*@
+
+            <div class="mb-3 form-group">
+                <label asp-for="Category.Name" class="mb-2"></label>
+                <input asp-for="Category.Name" class="form-control" readonly>              
+            </div>
+
+           <div class="mb-3 form-group">
+                <label asp-for="ApplicationType.Name" class="mb-2"></label>
+                <input asp-for="ApplicationType.Name" class="form-control" readonly>              
+            </div>
+
+            <div class="mb-3">
+                    <button type="submit" class="btn btn-danger" asp-route-id="@Model.Id" >Delete</button>
+                    <a asp-action="Index" class="btn btn-success"><i class="fa-solid fa-circle-left"></i> Back to list</a>
+            </div>
+
+        </div>
+        @if (Model.Id != 0)
+        {
+            <div class="col-4">
+                <img src="@WC.ImagePath@Model.Image" style="width:100%;border-radius:5px;" />
+            </div>
+        }
+
+    </div>
+</form>
+
+@section Scripts{
+    @{
+    <partial name="_ValidationScriptsPartial" />
+    }
+
+<script>
+
+    $(document).ready(function() {
+        $('.summernote').summernote({
+                height:250,
+                disabled:true
+        });
+    });
+
+
+
+</script>
+
+}

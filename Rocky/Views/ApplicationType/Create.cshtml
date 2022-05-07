@@ -1,0 +1,30 @@
+﻿@model Rocky.Models.ApplicationType
+
+<form method="post" asp-action="Create" class="mt-4">
+    <input asp-for="Id" hidden />
+        <div class="row col-5 mx-auto">
+            <div class="col-12 mb-4">
+                <h2>Add Application Type</h2>
+            </div>
+            <div class="col-12">
+
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <a asp-action="Index" class="btn btn-success">Back to list</a>
+                </div>
+            </div>
+        </div>
+
+
+</form>
+
+@section Scripts{
+    @{<partial name="_ValidationScriptsPartial"/>}
+}
