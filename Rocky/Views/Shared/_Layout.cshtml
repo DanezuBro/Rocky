@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@using Rocky.Utility
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -26,16 +30,37 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Category</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Content Management
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Category" asp-action="Index">Category</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="ApplicationType" asp-action="Index">Application Type</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
+                                @*            <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>*@
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ApplicationType" asp-action="Index">Application Type</a>
+                            @if (HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart) != null)
+                            {
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index">
+                                    @{
+                                        var count = HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart).Count;
+                                    }
+                                    <i class="fa-solid fa-cart-shopping"></i> &nbsp; (@count)
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="nav-link text-dark" href="#"><i class="fa-solid fa-cart-shopping"></i> &nbsp; 0</a>
+                            }
+
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
-                        </li>
+
                     </ul>
+
                 </div>
             </div>
         </nav>
@@ -60,3 +85,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
