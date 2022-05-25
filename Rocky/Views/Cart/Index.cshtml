@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Product>
+
+    @if(Model.Count()>0)
+{
+    <form method="post">
+    <div class="container pt-4" style="background-color:white;">
+        <!--Card-->
+
+        <div class="card" style="border:1px solid #222">
+            <div class="card-header bg-dark text-light m-lg-0 row container" style="border-radius:0px;">
+                <div class="col-12 col-md-6 text-start mt-1">
+                    <i class="fa-solid fa-cart-shopping"></i> &nbsp; Shopping Cart
+                </div>
+                <div class="col-12 col-md-6 text-end">
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-outline-primary btn-sm text-white">Continue Shopping</a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="container rounded p-2">
+                    <div class="row">
+                        <div class="col-lg-2">
+                        </div>
+                        <div class="col-lg-7">
+                            Product Details
+                        </div>
+                        <div class="col-lg-2">
+                            Price per sqft
+                        </div>
+                        <div class="col-lg-1">
+                        </div>
+                    </div>
+                    <hr />
+
+                    @foreach (var product in Model)
+                    {
+                        <div class="row h-100">
+                            <div class="col-lg-2 text-center py-2">
+                                <img src="@WC.ImagePath@product.Image" class="rounded" style="width:100%;" />
+                            </div>
+                            <div class="col-lg-7 pt-5">
+                                <h5>@product.Name</h5>
+                                <div style="font-size:11px;">@product.ShortDesc</div>
+                            </div>
+                            <div class="col-lg-2  pt-5" style="font-size:11px;">
+                                <span style="font-size:17px;"> @string.Format("{0:c0}",product.Price)</span>/ sqft
+
+                            </div>
+                            <div class="col-lg-1 p-0 pt-lg-4 text-center">
+                                <a asp-action="Remove" asp-route-id="@product.Id" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    <hr />
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-dark">
+            <div class="row">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary form-control" style="height:50px;width:200px;">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+}
+else
+{
+    <p class="text-center">No items in your cart. Please add items to cart.</p>
+}
+
