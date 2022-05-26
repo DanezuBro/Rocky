@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Rocky.Data;
-using Rocky.Models;
-using Rocky.Models.ViewModels;
-using Rocky.Utility;
+using Rocky_DataAccess.Data;
+using Rocky_Models;
+using Rocky_Models.ViewModels;
+using Rocky_Utility;
 using System.Security.Claims;
 using System.Text;
 
