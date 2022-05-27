@@ -70,7 +70,7 @@ namespace Rocky.Controllers
             }
 
             List<int> prodInCart = shoppingCartList.Select(x => x.ProductId).ToList();
-            IEnumerable<Product> prodList = _prodRepo.GetAll(p => prodInCart.Contains(p.Id));
+            List<Product> prodList = _prodRepo.GetAll(p => prodInCart.Contains(p.Id)).ToList();
 
             ProductUserVM = new ProductUserVM {
 
@@ -85,6 +85,9 @@ namespace Rocky.Controllers
         [ActionName("Summary")]
         public async Task<IActionResult> SummaryPost(ProductUserVM productUserVM)
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
             var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" + Path.DirectorySeparatorChar.ToString() + "Inquiry.html";
             var subject ="New Inquiry";
             var HtmlBody = "";
@@ -110,6 +113,29 @@ namespace Rocky.Controllers
 
             //trimiti email la client pentru a vedea comanda
             await _emailSender.SendEmailAsync(productUserVM.ApplicationUser.Email, subject, messageBody);
+
+            InquiryHeader inquiryHeader = new InquiryHeader()
+            {
+                ApplicationUserId = claim.Value,
+                FullName = productUserVM.ApplicationUser.FullName,
+                Email = productUserVM.ApplicationUser.Email,
+                PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
+                InquiryDate = DateTime.Now
+            };
+
+            _inqHRepo.Add(inquiryHeader);
+            _inqHRepo.Save();
+
+            foreach (var product in productUserVM.ProductList)
+            {
+                InquiryDetail inquiryDetail = new InquiryDetail()
+                {
+                    InquiryHeaderId = inquiryHeader.Id,
+                    ProductId = product.Id
+                };
+                _inqDRepo.Add(inquiryDetail);
+            }
+                _inqDRepo.Save();
 
             return RedirectToAction(nameof(InquiryConfirmation));
         }
