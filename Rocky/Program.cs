@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Rocky_DataAccess.Data;
+using Rocky_DataAccess.Repository;
+using Rocky_DataAccess.Repository.IRepository;
 using Rocky_Utility;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,8 +27,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddTransient<IEmailSender, EmailSender>();
-
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 
 
