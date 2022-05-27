@@ -19,6 +19,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="20.1.0.57" />
   </ItemGroup>
 
   <ItemGroup>
