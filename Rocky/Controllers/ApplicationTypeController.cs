@@ -36,7 +36,7 @@ namespace Rocky.Controllers
         {
             _appTypeRepo.Add(obj);
             _appTypeRepo.Save();
-
+            TempData[WC.Success] = "Action completed successfully.";
             return RedirectToAction("Index");
         }
 
@@ -62,8 +62,10 @@ namespace Rocky.Controllers
             {
                 _appTypeRepo.Update(applicationType);
                 _appTypeRepo.Save();
+                TempData[WC.Success] = "Action completed successfully.";
                 return RedirectToAction("Index");
             }
+            TempData[WC.Error] = "Action was not completed.";
             return RedirectToAction("Index");
         }
 
@@ -88,10 +90,12 @@ namespace Rocky.Controllers
             var obj = _appTypeRepo.Find(id.GetValueOrDefault());
             if (obj == null)
             {
+                TempData[WC.Error] = "Action was not completed.";
                 return NotFound();
             }
             _appTypeRepo.Remove(obj);
             _appTypeRepo.Save();
+            TempData[WC.Success] = "Action completed successfully.";
             return RedirectToAction("Index");
         }
     }

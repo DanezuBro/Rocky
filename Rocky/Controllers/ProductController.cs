@@ -77,7 +77,7 @@ namespace Rocky.Controllers
 
                     productVM.Product.Image = fileName + extension;
                     _prodRepo.Add(productVM.Product);
-
+                    TempData[WC.Success] = "Product created successfully.";
                 }
                 else
                 {
@@ -106,10 +106,11 @@ namespace Rocky.Controllers
                         productVM.Product.Image = objFromDb.Image;
                     }
                     _prodRepo.Update(productVM.Product);
-
+                    TempData[WC.Success] = "Product updated successfully.";
                 }
 
                 _prodRepo.Save();
+
                 return RedirectToAction("Index");
             }
             productVM.CategorySelectList = _prodRepo.GetAllDropdownList(WC.CategoryName); //_db.Category.Select(c => new SelectListItem
@@ -118,6 +119,7 @@ namespace Rocky.Controllers
             //    Value = c.Id.ToString()
             //});
             productVM.ApplicationTypeSelectList = _prodRepo.GetAllDropdownList(WC.ApplicationTypeName); //_db.ApplicationType.Select(a => new SelectListItem { Text = a.Name, Value = a.Id.ToString() });
+            TempData[WC.Error] = "Product was not created.";
             return View(productVM);
         }
 
@@ -144,6 +146,7 @@ namespace Rocky.Controllers
             Product product = _prodRepo.Find(id.GetValueOrDefault());
             if (product == null)
             {
+                TempData[WC.Error] = "Product was not deleted.";
                 return NotFound();
             }
 
@@ -156,6 +159,7 @@ namespace Rocky.Controllers
             }
             _prodRepo.Remove(product);
             _prodRepo.Save();
+            TempData[WC.Success] = "Product was deleted.";
             return RedirectToAction("Index");
         }
 
