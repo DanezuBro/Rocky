@@ -6,7 +6,7 @@
     <div class="row">
 
         <form method="post">
-            <input asp-for="@Model.Product.Id" hidden/>
+            <input asp-for="@Model.Product.Id" hidden />
             <div class="container pt-4" style="background-color:white;">
                 <!--Card-->
 
@@ -34,6 +34,23 @@
                                             <h3 class="text-success"></h3>
                                             <p class="text-secondary">@Html.Raw(@Model.Product.Description)</p>
                                         </div>
+                                        @if (User.IsInRole(WC.AdminRole))
+                                        {
+                                            <div class="col-12">
+                                                SqFt:
+                                            </div>
+                                            <div class="col-12">
+                                                @if (Model.ExistsInCart)
+                                                {
+                                                    <input asp-for="@Model.Product.TempSqFt" disabled class="form-control">
+                                                }
+                                                else
+                                                {
+                                                    <input asp-for="@Model.Product.TempSqFt" class="form-control">
+                                                }
+                                                <span asp-validation-for="@Model.Product.TempSqFt" class="text-danger"></span>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
 
@@ -52,7 +69,7 @@
                                         {
                                             <div class="col-12 col-md-6">
                                                 <button type="submit" asp-route-id="@Model.Product.Id" class="btn btn-info form-control btn-lg" style="height:50px;">Add to Cart</button>
-                                        </div>                                          
+                                            </div>
                                         }
 
                                     </div>

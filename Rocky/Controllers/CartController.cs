@@ -43,25 +43,64 @@ namespace Rocky.Controllers
             }
 
             List<int> prodInCart = shoppingCartList.Select(x => x.ProductId).ToList();
-            IEnumerable<Product> prodList = _prodRepo.GetAll(p => prodInCart.Contains(p.Id));
+            IEnumerable<Product> prodListTemp = _prodRepo.GetAll(p => prodInCart.Contains(p.Id));
+            IList<Product> prodList  = new List<Product>();
+
+            foreach (var cartObj in shoppingCartList)
+            {
+                Product prodTemp = prodListTemp.FirstOrDefault(p=> p.Id==cartObj.ProductId);
+                prodTemp.TempSqFt = cartObj.SqFt;
+                prodList.Add(prodTemp);
+            }
+
             return View(prodList);
         }
 
 
         [HttpPost,ActionName("Index")]
         [ValidateAntiForgeryToken]
-        public IActionResult IndexPost()
+        public IActionResult IndexPost(List<Product> prodList)
         {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            foreach (Product prod in prodList)
+            {
+                shoppingCartList.Add(new ShoppingCart { ProductId = prod.Id, SqFt = prod.TempSqFt });
+            }
+            HttpContext.Session.Set(WC.SessionCart, shoppingCartList);
             return RedirectToAction(nameof(Summary));
         }
 
 
         public IActionResult Summary()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            // sau alta varianta pentru a lua userId
-            //var userId = User.FindFirstValue(ClaimTypes.Name);
+            ApplicationUser applicationUser;
+            if (User.IsInRole(WC.AdminRole))
+            {
+                if (HttpContext.Session.Get<int>(WC.SessionInquiryId) != 0)
+                {
+                    // cart has been loaded using an inquiry
+                    InquiryHeader inquiryHeader = _inqHRepo.FirstOrDefault(i => i.Id == HttpContext.Session.Get<int>(WC.SessionInquiryId));
+
+                    applicationUser = new ApplicationUser()
+                    {
+                        FullName = inquiryHeader.FullName,
+                        Email = inquiryHeader.Email,
+                        PhoneNumber = inquiryHeader.PhoneNumber
+                    };
+
+                }
+                else {
+                    applicationUser = new ApplicationUser();
+                }
+            }
+            else
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                // sau alta varianta pentru a lua userId
+                //var userId = User.FindFirstValue(ClaimTypes.Name);
+                applicationUser = _appUserRepo.FirstOrDefault(a => a.Id == claim.Value);
+            };
 
             List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
             if (HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart) != null && HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart).Count() > 0)
@@ -69,12 +108,19 @@ namespace Rocky.Controllers
                 shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);
             }
 
-            List<int> prodInCart = shoppingCartList.Select(x => x.ProductId).ToList();
-            List<Product> prodList = _prodRepo.GetAll(p => prodInCart.Contains(p.Id)).ToList();
+            //List<int> prodInCart = shoppingCartList.Select(x => x.ProductId).ToList();
+            //List<Product> prodList = _prodRepo.GetAll(p => prodInCart.Contains(p.Id)).ToList();
+            List<Product> prodList = new List<Product>();
+            foreach ( ShoppingCart sc in shoppingCartList)
+            {
+                Product prod = _prodRepo.FirstOrDefault(p=>p.Id==sc.ProductId);
+                prod.TempSqFt = sc.SqFt;
+                prodList.Add(prod);
+            }
 
             ProductUserVM = new ProductUserVM {
 
-                ApplicationUser = _appUserRepo.FirstOrDefault(a=>a.Id==claim.Value),
+                ApplicationUser = applicationUser,
                 ProductList = prodList
             };
             return View(ProductUserVM);
@@ -97,11 +143,14 @@ namespace Rocky.Controllers
                 HtmlBody = sr.ReadToEnd();
             }
             StringBuilder productListSB = new StringBuilder();
+            var orderTotal = 0.0;
             foreach (var product in productUserVM.ProductList)
             {
-                productListSB.Append($" - Name : {product.Name} <span style='font-size=14px;'>(ID: {product.Id}) </span><br/>");
+                var prodTotal = product.Price * product.TempSqFt;
+            productListSB.Append($" - Name : {product.Name} <span style='font-size=14px;'>(${product.Price} x {product.TempSqFt} = ${prodTotal}) </span><br/>");
+                orderTotal += prodTotal;
             }
-
+            productListSB.Append($"<span style='font-size=14px;'>(Order total : ${orderTotal}) </span>");
             string messageBody = string.Format(HtmlBody,
                                                                         productUserVM.ApplicationUser.FullName,
                                                                         productUserVM.ApplicationUser.Email,
@@ -131,7 +180,8 @@ namespace Rocky.Controllers
                 InquiryDetail inquiryDetail = new InquiryDetail()
                 {
                     InquiryHeaderId = inquiryHeader.Id,
-                    ProductId = product.Id
+                    ProductId = product.Id,
+                    SqFt = product.TempSqFt
                 };
                 _inqDRepo.Add(inquiryDetail);
             }
@@ -159,6 +209,18 @@ namespace Rocky.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateCart(List<Product> prodList)
+        {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            foreach (Product prod in prodList)
+            {
+                shoppingCartList.Add(new ShoppingCart {ProductId = prod.Id, SqFt = prod.TempSqFt });
+            }
+            HttpContext.Session.Set(WC.SessionCart, shoppingCartList);
+            return RedirectToAction(nameof(Index));
+        }
 
 
     }

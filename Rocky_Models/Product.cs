@@ -8,6 +8,10 @@ namespace Rocky_Models
 {
     public class Product
     {
+        public Product()
+        {
+            TempSqFt = 1;
+        }
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
@@ -35,6 +39,10 @@ namespace Rocky_Models
         [ForeignKey("ApplicationTypeId")]
         [ValidateNever]
         public ApplicationType ApplicationType { get; set; }
+
+        [NotMapped]
+        [Range(1,10000)]
+        public int TempSqFt { get; set; }
 
     }
 }

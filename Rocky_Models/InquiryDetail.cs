@@ -25,7 +25,7 @@ namespace Rocky_Models
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
 
-
+        public int SqFt { get; set; }
 
 
     }
