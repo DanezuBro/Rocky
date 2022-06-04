@@ -21,11 +21,17 @@ namespace Rocky.Controllers
         private readonly IApplicationUserRepository _appUserRepo;
         private readonly IInquiryHeaderRepository _inqHRepo;
         private readonly IInquiryDetailRepository _inqDRepo;
+        private readonly IOrderHeaderRepository _orderHRepo;
+        private readonly IOrderDetailRepository _orderDRepo;
 
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
 
-        public CartController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender, IProductRepository prodRepo, IApplicationUserRepository appUserRepo, IInquiryHeaderRepository inqHRepo, IInquiryDetailRepository inqDRepo)
+        public CartController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment,
+                                            IEmailSender emailSender, IProductRepository prodRepo,
+                                            IApplicationUserRepository appUserRepo,
+                                            IInquiryHeaderRepository inqHRepo, IInquiryDetailRepository inqDRepo,
+                                            IOrderHeaderRepository orderHRepo, IOrderDetailRepository orderDRepo )
         {
             _webHostEnvironment = webHostEnvironment;   
             _emailSender = emailSender;
@@ -33,6 +39,8 @@ namespace Rocky.Controllers
             _appUserRepo = appUserRepo;
             _inqHRepo = inqHRepo;
             _inqDRepo = inqDRepo;
+            _orderHRepo = orderHRepo;
+            _orderDRepo = orderDRepo;
         }
         public IActionResult Index()
         {
@@ -134,66 +142,114 @@ namespace Rocky.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" + Path.DirectorySeparatorChar.ToString() + "Inquiry.html";
-            var subject ="New Inquiry";
-            var HtmlBody = "";
-
-            using (StreamReader sr = System.IO.File.OpenText(pathToTemplate))
+            if (User.IsInRole(WC.AdminRole))
             {
-                HtmlBody = sr.ReadToEnd();
-            }
-            StringBuilder productListSB = new StringBuilder();
-            var orderTotal = 0.0;
-            foreach (var product in productUserVM.ProductList)
-            {
-                var prodTotal = product.Price * product.TempSqFt;
-            productListSB.Append($" - Name : {product.Name} <span style='font-size=14px;'>(${product.Price} x {product.TempSqFt} = ${prodTotal}) </span><br/>");
-                orderTotal += prodTotal;
-            }
-            productListSB.Append($"<span style='font-size=14px;'>(Order total : ${orderTotal}) </span>");
-            string messageBody = string.Format(HtmlBody,
-                                                                        productUserVM.ApplicationUser.FullName,
-                                                                        productUserVM.ApplicationUser.Email,
-                                                                        productUserVM.ApplicationUser.PhoneNumber,
-                                                                        productListSB.ToString());
-
-            //trimiti email la admin pentru a vedea/pregati comanda
-            await _emailSender.SendEmailAsync(WC.EmailAdmin,subject, messageBody);
-
-            //trimiti email la client pentru a vedea comanda
-            await _emailSender.SendEmailAsync(productUserVM.ApplicationUser.Email, subject, messageBody);
-
-            InquiryHeader inquiryHeader = new InquiryHeader()
-            {
-                ApplicationUserId = claim.Value,
-                FullName = productUserVM.ApplicationUser.FullName,
-                Email = productUserVM.ApplicationUser.Email,
-                PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
-                InquiryDate = DateTime.Now
-            };
-
-            _inqHRepo.Add(inquiryHeader);
-            _inqHRepo.Save();
-
-            foreach (var product in productUserVM.ProductList)
-            {
-                InquiryDetail inquiryDetail = new InquiryDetail()
+                //we need to create an order
+                //var orderTotal = 0.0;
+                //foreach (var product in productUserVM.ProductList)
+                //{
+                //    orderTotal += product.Price * product.TempSqFt;
+                //}
+                OrderHeader orderHeader = new OrderHeader()
                 {
-                    InquiryHeaderId = inquiryHeader.Id,
-                    ProductId = product.Id,
-                    SqFt = product.TempSqFt
+                    CreatedByUserId = claim.Value,
+                    FinalOrderTotal = productUserVM.ProductList.Sum(x=>x.Price*x.TempSqFt),// orderTotal,
+                    City = productUserVM.ApplicationUser.City,
+                    StreetAddress = productUserVM.ApplicationUser.StreetAddress,
+                    State = productUserVM.ApplicationUser.State,
+                    PostalCode = productUserVM.ApplicationUser.PostalCode,
+                    FullName = productUserVM.ApplicationUser.FullName,
+                    Email  = productUserVM.ApplicationUser.Email,
+                    PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
+                    OrderDate = DateTime.Now,
+                    OrderStatus = WC.StatusPending
                 };
-                _inqDRepo.Add(inquiryDetail);
+                _orderHRepo.Add(orderHeader);
+                _orderHRepo.Save();
+
+                foreach (var product in productUserVM.ProductList)
+                {
+                    OrderDetail orderDetail = new OrderDetail() 
+                    {
+                    OrderHeaderId = orderHeader.Id,
+                    PricePerSqFt = product.Price,
+                    Sqft = product.TempSqFt,
+                    ProductId = product.Id
+                    };
+                    _orderDRepo.Add(orderDetail);   
+                }
+                _orderDRepo.Save();
+                TempData[WC.Success] = "Order submitted successfully.";
+                return RedirectToAction(nameof(InquiryConfirmation), orderHeader);
+
             }
+            else
+            {
+                // we need to create an inquiry
+                var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" + Path.DirectorySeparatorChar.ToString() + "Inquiry.html";
+                var subject = "New Inquiry";
+                var HtmlBody = "";
+
+                using (StreamReader sr = System.IO.File.OpenText(pathToTemplate))
+                {
+                    HtmlBody = sr.ReadToEnd();
+                }
+                StringBuilder productListSB = new StringBuilder();
+                var orderTotal = 0.0;
+                foreach (var product in productUserVM.ProductList)
+                {
+                    var prodTotal = product.Price * product.TempSqFt;
+                    productListSB.Append($" - Name : {product.Name} <span style='font-size=14px;'>(${product.Price} x {product.TempSqFt} = ${prodTotal}) </span><br/>");
+                    orderTotal += prodTotal;
+                }
+                productListSB.Append($"<span style='font-size=14px;'>(Order total : ${orderTotal}) </span>");
+                string messageBody = string.Format(HtmlBody,
+                                                                            productUserVM.ApplicationUser.FullName,
+                                                                            productUserVM.ApplicationUser.Email,
+                                                                            productUserVM.ApplicationUser.PhoneNumber,
+                                                                            productListSB.ToString());
+
+                //trimiti email la admin pentru a vedea/pregati comanda
+                await _emailSender.SendEmailAsync(WC.EmailAdmin, subject, messageBody);
+
+                //trimiti email la client pentru a vedea comanda
+                await _emailSender.SendEmailAsync(productUserVM.ApplicationUser.Email, subject, messageBody);
+
+                InquiryHeader inquiryHeader = new InquiryHeader()
+                {
+                    ApplicationUserId = claim.Value,
+                    FullName = productUserVM.ApplicationUser.FullName,
+                    Email = productUserVM.ApplicationUser.Email,
+                    PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
+                    InquiryDate = DateTime.Now
+                };
+
+                _inqHRepo.Add(inquiryHeader);
+                _inqHRepo.Save();
+
+                foreach (var product in productUserVM.ProductList)
+                {
+                    InquiryDetail inquiryDetail = new InquiryDetail()
+                    {
+                        InquiryHeaderId = inquiryHeader.Id,
+                        ProductId = product.Id,
+                        SqFt = product.TempSqFt
+                    };
+                    _inqDRepo.Add(inquiryDetail);
+                }
                 _inqDRepo.Save();
-            TempData[WC.Success] = "Inquiry submitted successfully.";
+                TempData[WC.Success] = "Inquiry submitted successfully.";
             return RedirectToAction(nameof(InquiryConfirmation));
+            }
+
         }
 
-        public IActionResult InquiryConfirmation()
+        public IActionResult InquiryConfirmation(OrderHeader orderHeader)
         {
+            //OrderHeader orderHeader = _orderHRepo.FirstOrDefault(h => h.Id == id);
             HttpContext.Session.Clear();
-            return View();
+            //ViewBag.Request = request;
+            return View(orderHeader);
         }
 
         public IActionResult Remove(int id)
