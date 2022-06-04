@@ -34,58 +34,60 @@
                                             <h3 class="text-success"></h3>
                                             <p class="text-secondary">@Html.Raw(@Model.Product.Description)</p>
                                         </div>
-                                        @if (User.IsInRole(WC.AdminRole))
+                                        @*                                        @if (User.IsInRole(WC.AdminRole))
                                         {
-                                            <div class="col-12">
-                                                SqFt:
-                                            </div>
-                                            <div class="col-12">
-                                                @if (Model.ExistsInCart)
-                                                {
-                                                    <input asp-for="@Model.Product.TempSqFt" disabled class="form-control">
-                                                }
-                                                else
-                                                {
-                                                    <input asp-for="@Model.Product.TempSqFt" class="form-control">
-                                                }
-                                                <span asp-validation-for="@Model.Product.TempSqFt" class="text-danger"></span>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-
-                                <div class="card-footer bg-dark">
-                                    <div class="row">
-                                        <div class="col-12 col-md-6 pb-1">
-                                            <a asp-action="Index" class="btn btn-success form-control btn-lg" style="height:50px;">Back to list</a>
+                                        <div class="col-12">
+                                        SqFt:
                                         </div>
+                                        <div class="col-12">
                                         @if (Model.ExistsInCart)
                                         {
-                                            <div class="col-12 col-md-6">
-                                                <a asp-action="RemoveFromCart" asp-route-id="@Model.Product.Id" class="btn btn-warning form-control btn-lg" style="height:50px;">Remove from Cart</a>
-                                            </div>
+                                        <input asp-for="@Model.Product.TempSqFt" disabled class="form-control">
                                         }
                                         else
                                         {
-                                            <div class="col-12 col-md-6">
-                                                <button type="submit" asp-route-id="@Model.Product.Id" class="btn btn-info form-control btn-lg" style="height:50px;">Add to Cart</button>
-                                            </div>
+                                        <input asp-for="@Model.Product.TempSqFt" class="form-control">
                                         }
-
+                                        <span asp-validation-for="@Model.Product.TempSqFt" class="text-danger"></span>
+                                        </div>
+                                        }*@
                                     </div>
 
+                                    <div class="col-12 mt-4">
+                                        SqFt:
+                                    </div>
+                                    <div class="col-12">
+                                        <input asp-for="@Model.Product.TempSqFt" class="form-control">
+                                        <span asp-validation-for="@Model.Product.TempSqFt" class="text-danger"></span>
+                                    </div>
 
                                 </div>
 
-
                             </div>
+
                         </div>
-
-
+                    </div>
+                    <div class="card-footer bg-dark">
+                        <div class="row">
+                            <div class="col-12 col-md-6 pb-1">
+                                <a asp-action="Index" class="btn btn-success form-control btn-lg" style="height:50px;">Back to list</a>
+                            </div>
+                            @if (Model.ExistsInCart)
+                            {
+                                <div class="col-12 col-md-6">
+                                    <a asp-action="RemoveFromCart" asp-route-id="@Model.Product.Id" class="btn btn-warning form-control btn-lg" style="height:50px;">Remove from Cart</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-12 col-md-6">
+                                    <button type="submit" asp-route-id="@Model.Product.Id" class="btn btn-info form-control btn-lg" style="height:50px;">Add to Cart</button>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         </form>
-
     </div>
 </div>

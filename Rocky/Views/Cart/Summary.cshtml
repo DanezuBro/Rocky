@@ -26,12 +26,12 @@
                                 </h4>
                             </div>
                             <div class="row my-1">
-                                <div class="col-2">
+                                <div class="col-3">
                                     <label>Name</label>
                                 </div>
                                 @*                                @if(User.IsInRole(WC.AdminRole))
                                 {*@
-                                <div class="col-10">
+                                <div class="col-9">
                                     <input type="text" class="form-control" asp-for="ApplicationUser.FullName" />
                                     <span asp-validation-for="ApplicationUser.FullName" class="text-danger"></span>
                                 </div>
@@ -46,23 +46,63 @@
 
                             </div>
                             <div class="row my-1">
-                                <div class="col-2">
+                                <div class="col-3">
                                     <label>Phone</label>
                                 </div>
-                                <div class="col-10">
+                                <div class="col-9">
                                     <input type="text" class="form-control" asp-for="ApplicationUser.PhoneNumber" />
                                     <span asp-validation-for="ApplicationUser.PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="row my-1">
-                                <div class="col-2">
+                                <div class="col-3">
                                     <label>Email</label>
                                 </div>
-                                <div class="col-10">
+                                <div class="col-9">
                                     <input type="text" class="form-control" asp-for="ApplicationUser.Email" />
                                     <span asp-validation-for="ApplicationUser.Email" class="text-danger"></span>
                                 </div>
                             </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Street address</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" asp-for="ApplicationUser.StreetAddress" required/>
+                                    <span asp-validation-for="ApplicationUser.StreetAddress" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>City</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" asp-for="ApplicationUser.City" />
+                                    <span asp-validation-for="ApplicationUser.City" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>State</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" asp-for="ApplicationUser.State" />
+                                    <span asp-validation-for="ApplicationUser.State" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Postal code</label>
+                                </div>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" asp-for="ApplicationUser.PostalCode" />
+                                    <span asp-validation-for="ApplicationUser.PostalCode" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+
+
                         </div>
                         <div class="col-6 row">
                             <div class="col-12">
@@ -82,29 +122,41 @@
                                             <div>
                                                 <h6 class="my-0">@Model.ProductList[i].Name</h6>
                                                 @*<small class="text-muted">Price per Sqft: @string.Format("{0:c0}",@Model.ProductList[i].Price)</small>*@
-                                                <small class="text-muted">Price :@Model.ProductList[i].TempSqFt x @Model.ProductList[i].Price = @string.Format("{0:c0}",@Model.ProductList[i].Price * @Model.ProductList[i].TempSqFt)</small>
+                                                <small class="text-muted">Price: @Model.ProductList[i].TempSqFt x $@Model.ProductList[i].Price = @string.Format("{0:c0}",@Model.ProductList[i].Price * @Model.ProductList[i].TempSqFt)</small>
                                             </div>
                                         </li>
                                         orderTotal += Model.ProductList[i].Price * Model.ProductList[i].TempSqFt;
                                     }
-
+                                    <li class="list-group-item d-flex justify-content-between  bg-black bg-opacity-25">
+                                        <div class="col-12 text-end">
+                                            <strong>Order Total: @string.Format("{0:c0}",orderTotal)</strong>
+                                        </div>
+                                    </li>
 
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-12 text-end pe-4" style="color:#821f3d">
-                            Order Total: @string.Format("{0:c0}",orderTotal)
-                        </div>
+                    @*<div class="row">
+                    <div class="col-12 text-end pe-4" style="color:#821f3d">
+                    Order Total: @string.Format("{0:c0}",orderTotal)
                     </div>
+                    </div>*@
                 </div>
             </div>
 
             <div class="card-footer bg-dark">
                 <div class="row">
                     <div class="text-end">
-                        <button type="submit" class="btn btn-outline-primary text-white form-control" style="height:50px;width:200px;">Submit Inquiry</button>
+                        @if(User.IsInRole(WC.AdminRole))
+                        {
+                         <button type="submit" class="btn btn-outline-success text-white form-control" style="height:50px;width:200px;">Submit Order</button>
+                        }
+                        else
+                        {
+                         <button type="submit" class="btn btn-outline-primary text-white form-control" style="height:50px;width:200px;">Submit Inquiry</button>
+                        }
+
                     </div>
                 </div>
             </div>
