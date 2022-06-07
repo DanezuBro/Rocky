@@ -15,9 +15,9 @@ namespace Rocky_Models
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
-
+        [ValidateNever]
         public string ShortDesc { get; set; }
-
+        [ValidateNever]
         public string Description { get; set; }
 
         [Range(1, int.MaxValue)]

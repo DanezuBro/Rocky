@@ -13,40 +13,41 @@
                         <i class="fa-solid fa-cart-shopping"></i> &nbsp; Shopping Cart
                     </div>
                     <div class="col-12 col-md-6 text-end">
+                        <a asp-action="Clear" class="btn btn-outline-warning btn-sm text-white">Clear Cart</a>
                         <a asp-action="Index" asp-controller="Home" class="btn btn-outline-primary btn-sm text-white">Continue Shopping</a>
                     </div>
                 </div>
 
                 <div class="card-body">
                     <div class="container rounded p-2">
-                        <div class="row  text-center" style="color:#821f3d">
-                            <div class="col-lg-2">
+                        <div class="row" style="color:#821f3d">
+                            <div class="col-lg-1">
                             </div>
-@*                            @if (User.IsInRole(WC.AdminRole))
-                            {*@
-                                <div class="col-lg-3">
-                                    Product Details
-                                </div>
-@*                            }
-                            else
-                            {
-                                <div class="col-lg-7">
-                                    Product Details
-                                </div>
-                            }*@
-                            <div class="col-lg-2">
+                            @*                            @if (User.IsInRole(WC.AdminRole))
+                        {*@
+                            <div class="col-lg-4">
+                                Product Details
+                            </div>
+                            @*                            }
+                        else
+                        {
+                        <div class="col-lg-7">
+                        Product Details
+                        </div>
+                        }*@
+                            <div class="col-lg-2 text-center">
                                 Price per sqft
                             </div>
-@*                            @if (User.IsInRole(WC.AdminRole))
-                            {*@
-                                <div class="col-6 col-lg-2">
-                                    Sqft
-                                </div>
-                                <div class="col-6 col-lg-2">
-                                    Total Price
-                                </div>
-@*                            }*@
-                            <div class="col-lg-1">
+                            @*                            @if (User.IsInRole(WC.AdminRole))
+                        {*@
+                            <div class="col-6 col-lg-2 text-center">
+                                Sqft
+                            </div>
+                            <div class="col-6 col-lg-2 text-center">
+                                Total Price
+                            </div>
+                            @*                            }*@
+                            <div class="col-lg-1 text-center">
                             </div>
                         </div>
                         <hr />
@@ -60,33 +61,33 @@
                                 <div class="col-lg-2 text-center py-2">
                                     <img src="@WC.ImagePath@Model[i].Image" class="rounded" style="width:100%;" />
                                 </div>
-@*                                @if (User.IsInRole(WC.AdminRole))
-                                {*@
-                                    <div class="col-lg-3 pt-5">
-                                        <h5>@Model[i].Name</h5>
-                                        <div style="font-size:11px;">@Model[i].ShortDesc</div>
-                                    </div>
-@*                                }
-                                else
-                                {
-                                    <div class="col-lg-7 pt-5">
-                                        <h5>@Model[i].Name</h5>
-                                        <div style="font-size:11px;">@Model[i].ShortDesc</div>
-                                    </div>
-                                }*@
+                                @*                                @if (User.IsInRole(WC.AdminRole))
+                        {*@
+                                <div class="col-lg-3 pt-5">
+                                    <h5>@Model[i].Name</h5>
+                                    <div style="font-size:11px;">@Model[i].ShortDesc</div>
+                                </div>
+                                @*                                }
+                        else
+                        {
+                        <div class="col-lg-7 pt-5">
+                        <h5>@Model[i].Name</h5>
+                        <div style="font-size:11px;">@Model[i].ShortDesc</div>
+                        </div>
+                        }*@
 
                                 <div class="col-lg-2  pt-5  text-center" style="font-size:11px;">
                                     <span style="font-size:17px;"> @string.Format("{0:c0}",Model[i].Price)</span>/ sqft
                                 </div>
-@*                                @if (User.IsInRole(WC.AdminRole))
-                                {*@
-                                    <div class="col-lg-2  pt-5" style="font-size:11px;">
-                                        <input type="number" asp-for="@Model[i].TempSqFt" class="form-control">
-                                    </div>
-                                    <div class="col-lg-2 pt-5 text-center" style="font-size:11px;">
-                                        <span style="font-size:17px;"> @string.Format("{0:c0}",Model[i].Price*Model[i].TempSqFt)</span>
-                                    </div>
-@*                                }*@
+                                @*                                @if (User.IsInRole(WC.AdminRole))
+                        {*@
+                                <div class="col-lg-2  pt-5" style="font-size:11px;">
+                                    <input type="number" asp-for="@Model[i].TempSqFt" class="form-control">
+                                </div>
+                                <div class="col-lg-2 pt-5 text-center" style="font-size:11px;">
+                                    <span style="font-size:17px;"> @string.Format("{0:c0}",Model[i].Price*Model[i].TempSqFt)</span>
+                                </div>
+                                @*                                }*@
                                 <div class="col-lg-1 pt-5 text-center">
                                     <a asp-action="Remove" asp-route-id="@Model[i].Id" class="btn btn-outline-danger">
                                         <i class="fas fa-trash"></i>
@@ -96,28 +97,28 @@
                             orderTotal += Model[i].Price * Model[i].TempSqFt;
                             <hr />
                         }
-@*                        @if (User.IsInRole(WC.AdminRole))
-                        {*@
-                            <div class="row">
-                                <div class="col-12 text-end pe-4" style="color:#821f3d">
-                                    Order Total: @string.Format("{0:c0}",orderTotal)
-                                </div>
+                        @*                        @if (User.IsInRole(WC.AdminRole))
+                    {*@
+                        <div class="row">
+                            <div class="col-12 text-end pe-4" style="color:#821f3d">
+                                Order Total: @string.Format("{0:c0}",orderTotal)
                             </div>
-@*                        }*@
+                        </div>
+                        @*                        }*@
                     </div>
                 </div>
                 <div class="card-footer bg-dark">
                     <div class="row justify-content-end">
-@*                        <div class="offset-6 col-3 text-end">*@
+                        @*                        <div class="offset-6 col-3 text-end">*@
 
-@*                            @if (User.IsInRole(WC.AdminRole))
-                            {*@
-                                    <button type="submit" asp-action="UpdateCart" formmethod="post" name="Update" class="btn btn-outline-primary form-control text-white" style="height:50px;width:200px;">Update cart</button>
-@*                            }*@
-@*                        </div>
-                            <div class="col-3 text-center ">*@
-                                <button type="submit" class="btn btn-outline-primary form-control text-white ms-3" style="height:50px;width:200px;">Continue</button>
-@*                            </div>*@
+                        @*                            @if (User.IsInRole(WC.AdminRole))
+                    {*@
+                        <button type="submit" asp-action="UpdateCart" formmethod="post" name="Update" class="btn btn-outline-primary form-control text-white" style="height:50px;width:200px;">Update cart</button>
+                        @*                            }*@
+                        @*                        </div>
+                    <div class="col-3 text-center ">*@
+                        <button type="submit" class="btn btn-outline-primary form-control text-white ms-3" style="height:50px;width:200px;">Continue</button>
+                        @*                            </div>*@
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ using Rocky_DataAccess.Data;
 using Rocky_DataAccess.Repository;
 using Rocky_DataAccess.Repository.IRepository;
 using Rocky_Utility;
+using Rocky_Utility.BrainTree;
 
 var builder = WebApplication.CreateBuilder(args);
 //var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection");;
@@ -26,7 +27,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.Configure<BrainTreeSettings>(builder.Configuration.GetSection("BrainTree"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<IBrainTreeGate, BrainTreeGate>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

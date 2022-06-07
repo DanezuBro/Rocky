@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Braintree;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Rocky_DataAccess.Repository.IRepository;
 using Rocky_Models;
 using Rocky_Models.ViewModels;
 using Rocky_Utility;
+using Rocky_Utility.BrainTree;
 using System.Security.Claims;
 using System.Text;
 
@@ -23,6 +25,7 @@ namespace Rocky.Controllers
         private readonly IInquiryDetailRepository _inqDRepo;
         private readonly IOrderHeaderRepository _orderHRepo;
         private readonly IOrderDetailRepository _orderDRepo;
+        private readonly IBrainTreeGate _brain;
 
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
@@ -31,7 +34,7 @@ namespace Rocky.Controllers
                                             IEmailSender emailSender, IProductRepository prodRepo,
                                             IApplicationUserRepository appUserRepo,
                                             IInquiryHeaderRepository inqHRepo, IInquiryDetailRepository inqDRepo,
-                                            IOrderHeaderRepository orderHRepo, IOrderDetailRepository orderDRepo )
+                                            IOrderHeaderRepository orderHRepo, IOrderDetailRepository orderDRepo, IBrainTreeGate brain)
         {
             _webHostEnvironment = webHostEnvironment;   
             _emailSender = emailSender;
@@ -41,6 +44,7 @@ namespace Rocky.Controllers
             _inqDRepo = inqDRepo;
             _orderHRepo = orderHRepo;
             _orderDRepo = orderDRepo;
+            _brain = brain;
         }
         public IActionResult Index()
         {
@@ -131,63 +135,28 @@ namespace Rocky.Controllers
                 ApplicationUser = applicationUser,
                 ProductList = prodList
             };
+
+            var gateway = _brain.GetGateway();
+            var clientToken = gateway.ClientToken.Generate();
+            ViewBag.ClientToken = clientToken;
             return View(ProductUserVM);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Summary")]
-        public async Task<IActionResult> SummaryPost(ProductUserVM productUserVM)
+        public async Task<IActionResult> SummaryPost(IFormCollection collection, ProductUserVM productUserVM)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (User.IsInRole(WC.AdminRole))
+            if (ModelState.IsValid)
             {
-                //we need to create an order
-                //var orderTotal = 0.0;
-                //foreach (var product in productUserVM.ProductList)
+                //if (User.IsInRole(WC.AdminRole))
                 //{
-                //    orderTotal += product.Price * product.TempSqFt;
-                //}
-                OrderHeader orderHeader = new OrderHeader()
-                {
-                    CreatedByUserId = claim.Value,
-                    FinalOrderTotal = productUserVM.ProductList.Sum(x=>x.Price*x.TempSqFt),// orderTotal,
-                    City = productUserVM.ApplicationUser.City,
-                    StreetAddress = productUserVM.ApplicationUser.StreetAddress,
-                    State = productUserVM.ApplicationUser.State,
-                    PostalCode = productUserVM.ApplicationUser.PostalCode,
-                    FullName = productUserVM.ApplicationUser.FullName,
-                    Email  = productUserVM.ApplicationUser.Email,
-                    PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
-                    OrderDate = DateTime.Now,
-                    OrderStatus = WC.StatusPending
-                };
-                _orderHRepo.Add(orderHeader);
-                _orderHRepo.Save();
-
-                foreach (var product in productUserVM.ProductList)
-                {
-                    OrderDetail orderDetail = new OrderDetail() 
-                    {
-                    OrderHeaderId = orderHeader.Id,
-                    PricePerSqFt = product.Price,
-                    Sqft = product.TempSqFt,
-                    ProductId = product.Id
-                    };
-                    _orderDRepo.Add(orderDetail);   
-                }
-                _orderDRepo.Save();
-                TempData[WC.Success] = "Order submitted successfully.";
-                return RedirectToAction(nameof(InquiryConfirmation), orderHeader);
-
-            }
-            else
-            {
                 // we need to create an inquiry
-                var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" + Path.DirectorySeparatorChar.ToString() + "Inquiry.html";
-                var subject = "New Inquiry";
+                var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" + Path.DirectorySeparatorChar.ToString() + "Order.html";
+                var subject = "New Order";
                 var HtmlBody = "";
 
                 using (StreamReader sr = System.IO.File.OpenText(pathToTemplate))
@@ -215,32 +184,131 @@ namespace Rocky.Controllers
                 //trimiti email la client pentru a vedea comanda
                 await _emailSender.SendEmailAsync(productUserVM.ApplicationUser.Email, subject, messageBody);
 
-                InquiryHeader inquiryHeader = new InquiryHeader()
+                OrderHeader orderHeader = new OrderHeader()
                 {
-                    ApplicationUserId = claim.Value,
+                    CreatedByUserId = claim.Value,
+                    FinalOrderTotal = productUserVM.ProductList.Sum(x => x.Price * x.TempSqFt),// orderTotal,
+                    City = productUserVM.ApplicationUser.City,
+                    StreetAddress = productUserVM.ApplicationUser.StreetAddress,
+                    State = productUserVM.ApplicationUser.State,
+                    PostalCode = productUserVM.ApplicationUser.PostalCode,
                     FullName = productUserVM.ApplicationUser.FullName,
                     Email = productUserVM.ApplicationUser.Email,
                     PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
-                    InquiryDate = DateTime.Now
+                    OrderDate = DateTime.Now,
+                    OrderStatus = WC.StatusPending
                 };
-
-                _inqHRepo.Add(inquiryHeader);
-                _inqHRepo.Save();
+                _orderHRepo.Add(orderHeader);
+                _orderHRepo.Save();
 
                 foreach (var product in productUserVM.ProductList)
                 {
-                    InquiryDetail inquiryDetail = new InquiryDetail()
+                    OrderDetail orderDetail = new OrderDetail()
                     {
-                        InquiryHeaderId = inquiryHeader.Id,
-                        ProductId = product.Id,
-                        SqFt = product.TempSqFt
+                        OrderHeaderId = orderHeader.Id,
+                        PricePerSqFt = product.Price,
+                        Sqft = product.TempSqFt,
+                        ProductId = product.Id
                     };
-                    _inqDRepo.Add(inquiryDetail);
+                    _orderDRepo.Add(orderDetail);
                 }
-                _inqDRepo.Save();
-                TempData[WC.Success] = "Inquiry submitted successfully.";
-            return RedirectToAction(nameof(InquiryConfirmation));
+                _orderDRepo.Save();
+
+                // start payment transaction
+                string nonceFromTheClient = collection["payment_method_nonce"];
+                var request = new TransactionRequest
+                {
+                    Amount = Convert.ToDecimal(orderHeader.FinalOrderTotal),
+                    PaymentMethodNonce = nonceFromTheClient,
+                    OrderId = orderHeader.Id.ToString(),
+                    //DeviceData = deviceDataFromTheClient,
+                    Options = new TransactionOptionsRequest
+                    {
+                        SubmitForSettlement = true
+                    }
+                };
+                var gateway = _brain.GetGateway();
+                Result<Transaction> result = gateway.Transaction.Sale(request);
+                // end payment transaction
+
+                if (result.Target.ProcessorResponseText == "Approved")
+                {
+                    orderHeader.TransactionId = result.Target.Id;
+                    orderHeader.OrderStatus = WC.StatusApproved;
+                }
+                else
+                {
+                    orderHeader.OrderStatus = WC.StatusCancelled;
+                }
+                _orderHRepo.Save();
+
+                TempData[WC.Success] = "Order submitted successfully.";
+                return RedirectToAction(nameof(InquiryConfirmation), orderHeader);
             }
+            else return View(productUserVM);
+
+
+           
+
+            //}
+            //else
+            //{
+            //    // we need to create an inquiry
+            //    var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" + Path.DirectorySeparatorChar.ToString() + "Inquiry.html";
+            //    var subject = "New Inquiry";
+            //    var HtmlBody = "";
+
+            //    using (StreamReader sr = System.IO.File.OpenText(pathToTemplate))
+            //    {
+            //        HtmlBody = sr.ReadToEnd();
+            //    }
+            //    StringBuilder productListSB = new StringBuilder();
+            //    var orderTotal = 0.0;
+            //    foreach (var product in productUserVM.ProductList)
+            //    {
+            //        var prodTotal = product.Price * product.TempSqFt;
+            //        productListSB.Append($" - Name : {product.Name} <span style='font-size=14px;'>(${product.Price} x {product.TempSqFt} = ${prodTotal}) </span><br/>");
+            //        orderTotal += prodTotal;
+            //    }
+            //    productListSB.Append($"<span style='font-size=14px;'>(Order total : ${orderTotal}) </span>");
+            //    string messageBody = string.Format(HtmlBody,
+            //                                                                productUserVM.ApplicationUser.FullName,
+            //                                                                productUserVM.ApplicationUser.Email,
+            //                                                                productUserVM.ApplicationUser.PhoneNumber,
+            //                                                                productListSB.ToString());
+
+            //    //trimiti email la admin pentru a vedea/pregati comanda
+            //    await _emailSender.SendEmailAsync(WC.EmailAdmin, subject, messageBody);
+
+            //    //trimiti email la client pentru a vedea comanda
+            //    await _emailSender.SendEmailAsync(productUserVM.ApplicationUser.Email, subject, messageBody);
+
+            //    InquiryHeader inquiryHeader = new InquiryHeader()
+            //    {
+            //        ApplicationUserId = claim.Value,
+            //        FullName = productUserVM.ApplicationUser.FullName,
+            //        Email = productUserVM.ApplicationUser.Email,
+            //        PhoneNumber = productUserVM.ApplicationUser.PhoneNumber,
+            //        InquiryDate = DateTime.Now
+            //    };
+
+            //    _inqHRepo.Add(inquiryHeader);
+            //    _inqHRepo.Save();
+
+            //    foreach (var product in productUserVM.ProductList)
+            //    {
+            //        InquiryDetail inquiryDetail = new InquiryDetail()
+            //        {
+            //            InquiryHeaderId = inquiryHeader.Id,
+            //            ProductId = product.Id,
+            //            SqFt = product.TempSqFt
+            //        };
+            //        _inqDRepo.Add(inquiryDetail);
+            //    }
+            //    _inqDRepo.Save();
+            //    TempData[WC.Success] = "Inquiry submitted successfully.";
+            //return RedirectToAction(nameof(InquiryConfirmation));
+            //}
 
         }
 
@@ -278,6 +346,11 @@ namespace Rocky.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult Clear()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index","Home");
+        }
 
     }
 }
