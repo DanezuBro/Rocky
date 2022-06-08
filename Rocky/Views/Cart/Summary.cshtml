@@ -32,7 +32,7 @@
                                 @*                                @if(User.IsInRole(WC.AdminRole))
                                 {*@
                                 <div class="col-9">
-                                    <input type="text" class="form-control" asp-for="ApplicationUser.FullName" />
+                                    <input type="text" id="fullName" class="form-control" asp-for="ApplicationUser.FullName" />
                                     <span asp-validation-for="ApplicationUser.FullName" class="text-danger"></span>
                                 </div>
                                 @*                                }
@@ -50,7 +50,7 @@
                                     <label>Phone</label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" class="form-control" asp-for="ApplicationUser.PhoneNumber" />
+                                    <input type="text" id="phoneNumber" class="form-control" asp-for="ApplicationUser.PhoneNumber" />
                                     <span asp-validation-for="ApplicationUser.PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
@@ -59,7 +59,7 @@
                                     <label>Email</label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" class="form-control" asp-for="ApplicationUser.Email" />
+                                    <input type="text" id="email" class="form-control" asp-for="ApplicationUser.Email" />
                                     <span asp-validation-for="ApplicationUser.Email" class="text-danger"></span>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                                     <label>City</label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" id="city" class="form-control" asp-for="ApplicationUser.City" required/>
+                                    <input type="text" id="city" class="form-control" asp-for="ApplicationUser.City" required />
                                     <span asp-validation-for="ApplicationUser.City" class="text-danger"></span>
                                 </div>
                             </div>
@@ -86,7 +86,7 @@
                                     <label>State</label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" id="state" class="form-control" asp-for="ApplicationUser.State" required/>
+                                    <input type="text" id="state" class="form-control" asp-for="ApplicationUser.State" required />
                                     <span asp-validation-for="ApplicationUser.State" class="text-danger"></span>
                                 </div>
                             </div>
@@ -95,7 +95,7 @@
                                     <label>Postal code</label>
                                 </div>
                                 <div class="col-9">
-                                    <input type="text" id="postalCode" class="form-control" asp-for="ApplicationUser.PostalCode" required/>
+                                    <input type="text" id="postalCode" class="form-control" asp-for="ApplicationUser.PostalCode" required />
                                     <span asp-validation-for="ApplicationUser.PostalCode" class="text-danger"></span>
                                 </div>
                             </div>
@@ -161,14 +161,14 @@
             <div class="card-footer bg-dark">
                 <div class="row">
                     <div class="text-end">
-                        @if (User.IsInRole(WC.AdminRole))
-                        {
-                            <button type="submit" class="btn btn-outline-success text-white form-control" style="height:50px;width:200px;">Submit Order</button>
-                        }
+                        @*                        @if (User.IsInRole(WC.AdminRole))
+                        {*@
+                        <button type="submit" id="submitOrder" class="btn btn-outline-success text-white form-control" style="height:50px;width:200px;" onclick="return validateInput()" >Submit Order</button>
+                        @*                        }
                         else
                         {
-                            <button type="submit" class="btn btn-outline-primary text-white form-control" style="height:50px;width:200px;">Submit Inquiry</button>
-                        }
+                        <button type="submit" class="btn btn-outline-primary text-white form-control" style="height:50px;width:200px;">Submit Inquiry</button>
+                        }*@
 
                     </div>
                 </div>
@@ -188,50 +188,51 @@
         var client_token = "@ViewBag.ClientToken";
         var form = document.querySelector('#payment-form');
 
-                //function Validate() {
-                //    var street = document.getElementById('street').value;
-                //    if (street == '') {
-                //        alert("Trebuie completat campul Street address !");
-                //        return false;
-                //    }
-                //    else {
-                //        return true;
-                //    }
-                //         //const elements = document.querySelectorAll('input[type="text"]');
-                //         //           for (var i = 0; i < elements.length; i++) 
-                //         //           {
-                //         //               if (elements[i].value == "") {
-                //         //                   console.log("Input-uri goale.")
-                //         //                   alert("Trebuie completate toate datele!");
-                //         //               }
-                //         //               else { 
-                //         //                          console.log("Sunt completate toate datele.")                 
-                //         //               }
-                //         //           }
-                //}
-
-
+        function validateInput() {
+            if (document.getElementById("fullName").value == "" ||
+                document.getElementById("phoneNumber").value == "" ||
+                document.getElementById("email").value == "" ||
+                document.getElementById("street").value == "" ||
+                document.getElementById("city").value == "" ||
+                document.getElementById("state").value == "" ||
+                document.getElementById("postalCode").value == "") {
+                Swal.fire(
+                    'Error !',
+                    'User details fields are mandatory !',
+                    'error'
+                )
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
 
         //   that functions as a query selector such as `#dropin-container`)
-        braintree.dropin.create(
-            {
-                authorization: client_token,
-                container: document.getElementById('dropin-container'),
-                // ...plus remaining configuration
-            },
-            (error, dropinInstance) => {
-                form.addEventListener('submit', function() {
-                    event.preventDefault();
-                    //Add the nonce to the form and submit
-                    dropinInstance.requestPaymentMethod(function(err, payload) {
-                        if (error) console.error(error);
-                        // Submit payload.nonce to your server
-                        document.querySelector('#nonce').value = payload.nonce;
-                        form.submit();
 
+            braintree.dropin.create(
+                {
+                    authorization: client_token,
+                    container: document.getElementById('dropin-container'),
+                    // ...plus remaining configuration
+                },
+                (error, dropinInstance) => {
+                    form.addEventListener('submit', function() {
+                        event.preventDefault();
+                        //Add the nonce to the form and submit
+                        dropinInstance.requestPaymentMethod(function(err, payload) {
+                            if (error) console.error(error);
+                            // Submit payload.nonce to your server
+                            document.querySelector('#nonce').value = payload.nonce;
+                            form.submit();
+
+                        });
                     });
                 });
-            });
+
+
+
+
 
     </script>
 }
