@@ -24,3 +24,5 @@ Some of the topics covered in this project:
 - Integrate Braintree payment with refunds.
 - Syncfusion integration with ASP.NET Core MVC 6
 
+![image](https://user-images.githubusercontent.com/30341917/172885581-b223d863-d79d-410b-a0b7-dc4e64de05ef.png)
+
