@@ -15,6 +15,7 @@ Some of the topics covered in this project:
 - Repository Pattern in ASP.NET Core(Repository, IRepository)
 - Integrate Identity Framework and add more fields to Users
 - Integrate Entity Framework along with code first migrations
+- DataAnnotations for client side and server side validations
 - Authentication and Authorization in ASP.NET Core
 - Datatables in ASP.NET Core
 - Toastr Notifications and TempData
@@ -22,3 +23,4 @@ Some of the topics covered in this project:
 - Order Management architecture
 - Integrate Braintree payment with refunds.
 - Syncfusion integration with ASP.NET Core MVC 6
+
