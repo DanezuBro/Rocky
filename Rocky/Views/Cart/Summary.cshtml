@@ -33,7 +33,7 @@
                                 {*@
                                 <div class="col-9">
                                     <input type="text" id="fullName" class="form-control" asp-for="ApplicationUser.FullName" />
-                                    <span asp-validation-for="ApplicationUser.FullName" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.FullName" class="text-danger"></span>*@
                                 </div>
                                 @*                                }
                                 else
@@ -51,7 +51,7 @@
                                 </div>
                                 <div class="col-9">
                                     <input type="text" id="phoneNumber" class="form-control" asp-for="ApplicationUser.PhoneNumber" />
-                                    <span asp-validation-for="ApplicationUser.PhoneNumber" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.PhoneNumber" class="text-danger"></span>*@
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -60,7 +60,7 @@
                                 </div>
                                 <div class="col-9">
                                     <input type="text" id="email" class="form-control" asp-for="ApplicationUser.Email" />
-                                    <span asp-validation-for="ApplicationUser.Email" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.Email" class="text-danger"></span>*@
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -69,7 +69,7 @@
                                 </div>
                                 <div class="col-9">
                                     <input type="text" id="street" class="form-control" asp-for="ApplicationUser.StreetAddress" required />
-                                    <span asp-validation-for="ApplicationUser.StreetAddress" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.StreetAddress" class="text-danger"></span>*@
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-9">
                                     <input type="text" id="city" class="form-control" asp-for="ApplicationUser.City" required />
-                                    <span asp-validation-for="ApplicationUser.City" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.City" class="text-danger"></span>*@
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -87,7 +87,7 @@
                                 </div>
                                 <div class="col-9">
                                     <input type="text" id="state" class="form-control" asp-for="ApplicationUser.State" required />
-                                    <span asp-validation-for="ApplicationUser.State" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.State" class="text-danger"></span>*@
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -96,7 +96,7 @@
                                 </div>
                                 <div class="col-9">
                                     <input type="text" id="postalCode" class="form-control" asp-for="ApplicationUser.PostalCode" required />
-                                    <span asp-validation-for="ApplicationUser.PostalCode" class="text-danger"></span>
+                                    @*<span asp-validation-for="ApplicationUser.PostalCode" class="text-danger"></span>*@
                                 </div>
                             </div>
 
@@ -121,7 +121,7 @@
                                         <input hidden asp-for="@Model.ProductList[i].Price" />
                                         <li class="list-group-item d-flex justify-content-between">
                                             <div>
-                                                <h6 class="my-0">@Model.ProductList[i].Name</h6>
+                                                <h6 class="my-0 text-primary">@Model.ProductList[i].Name</h6>
                                                 @*<small class="text-muted">Price per Sqft: @string.Format("{0:c0}",@Model.ProductList[i].Price)</small>*@
                                                 <small class="text-muted">Price: @Model.ProductList[i].TempSqFt x $@Model.ProductList[i].Price = @string.Format("{0:c0}",@Model.ProductList[i].Price * @Model.ProductList[i].TempSqFt)</small>
                                             </div>
@@ -163,7 +163,7 @@
                     <div class="text-end">
                         @*                        @if (User.IsInRole(WC.AdminRole))
                         {*@
-                        <button type="submit" id="submitOrder" class="btn btn-outline-success text-white form-control" style="height:50px;width:200px;" onclick="return validateInput()" >Submit Order</button>
+                        <button type="submit" id="submitOrder" class="btn btn-outline-success text-white form-control" style="height:50px;width:200px;" onclick="return validateInput()">Submit Order</button>
                         @*                        }
                         else
                         {
@@ -189,46 +189,112 @@
         var form = document.querySelector('#payment-form');
 
         function validateInput() {
-            if (document.getElementById("fullName").value == "" ||
-                document.getElementById("phoneNumber").value == "" ||
-                document.getElementById("email").value == "" ||
-                document.getElementById("street").value == "" ||
-                document.getElementById("city").value == "" ||
-                document.getElementById("state").value == "" ||
-                document.getElementById("postalCode").value == "") {
-                Swal.fire(
-                    'Error !',
-                    'User details fields are mandatory !',
-                    'error'
-                )
+            var app_name = document.getElementById("fullName").value;
+            var app_phoneNumber = document.getElementById("phoneNumber").value;
+            var app_email = document.getElementById("email").value;
+            var app_street = document.getElementById("street").value;
+            var app_city = document.getElementById("city").value;
+            var app_state = document.getElementById("state").value;
+            var app_postalCode = document.getElementById("postalCode").value;
+
+            if (app_name == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Full Name!'
+                })
                 return false;
             }
-            else {
-                return true;
+            if (app_phoneNumber == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Phone number!'
+                })
+                return false;
             }
+            if (app_email == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Email!'
+                })
+                return false;
+            }
+            if (app_street == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Street!'
+                })
+                return false;
+            }
+            if (app_city == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter City!'
+                })
+                return false;
+            }
+            if (app_state == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter State!'
+                })
+                return false;
+            }
+            if (app_postalCode == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Postal code!'
+                })
+                return false;
+            }
+
+            return true;
+            //if (document.getElementById("fullName").value == "" ||
+            //    document.getElementById("phoneNumber").value == "" ||
+            //    document.getElementById("email").value == "" ||
+            //    document.getElementById("street").value == "" ||
+            //    document.getElementById("city").value == "" ||
+            //    document.getElementById("state").value == "" ||
+            //    document.getElementById("postalCode").value == "") {
+            //    Swal.fire(
+            //        'Error !',
+            //        'User details fields are mandatory !',
+            //        'error'
+            //    )
+            //    return false;
+            //}
+            //else {
+            //    return true;
+            //}
         }
 
         //   that functions as a query selector such as `#dropin-container`)
 
-            braintree.dropin.create(
-                {
-                    authorization: client_token,
-                    container: document.getElementById('dropin-container'),
-                    // ...plus remaining configuration
-                },
-                (error, dropinInstance) => {
-                    form.addEventListener('submit', function() {
-                        event.preventDefault();
-                        //Add the nonce to the form and submit
-                        dropinInstance.requestPaymentMethod(function(err, payload) {
-                            if (error) console.error(error);
-                            // Submit payload.nonce to your server
-                            document.querySelector('#nonce').value = payload.nonce;
-                            form.submit();
+        braintree.dropin.create(
+            {
+                authorization: client_token,
+                container: document.getElementById('dropin-container'),
+                // ...plus remaining configuration
+            },
+            (error, dropinInstance) => {
+                form.addEventListener('submit', function() {
+                    event.preventDefault();
+                    //Add the nonce to the form and submit
+                    dropinInstance.requestPaymentMethod(function(err, payload) {
+                        if (error) console.error(error);
+                        // Submit payload.nonce to your server
+                        document.querySelector('#nonce').value = payload.nonce;
+                        form.submit();
 
-                        });
                     });
                 });
+            });
 
 
 

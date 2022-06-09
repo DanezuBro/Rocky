@@ -19,14 +19,14 @@ namespace Rocky_Models
 
         [Required]
         public DateTime OrderDate { get; set; }
-        //[Required]
+
         public DateTime ShippingDate { get; set; }
         [Required]
         public double FinalOrderTotal { get; set; }
         public string OrderStatus { get; set; }
         public DateTime PaymentDate { get; set; }
         //public DateTime PaymentDueDate { get; set; }
-        public string TransactionId { get; set; }
+        public string? TransactionId { get; set; }
 
         [Required]
         public string PhoneNumber { get; set; }
@@ -40,6 +40,7 @@ namespace Rocky_Models
         public string PostalCode { get; set; }
         [Required]
         public string FullName { get; set; }
+        [Required]
         public string Email { get; set; }
     }
 }

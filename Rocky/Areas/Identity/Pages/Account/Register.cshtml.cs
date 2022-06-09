@@ -175,6 +175,7 @@ namespace Rocky.Areas.Identity.Pages.Account
                         }
                         else
                         {
+                            TempData[WC.Success] = user.FullName + " has been registered.";
                             return RedirectToAction(nameof(Index));
                         }
 

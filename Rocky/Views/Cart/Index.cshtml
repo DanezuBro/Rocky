@@ -83,6 +83,7 @@
                         {*@
                                 <div class="col-lg-2  pt-5" style="font-size:11px;">
                                     <input type="number" asp-for="@Model[i].TempSqFt" class="form-control">
+                                     <span asp-validation-for="@Model[i].TempSqFt" class="text-danger"></span>
                                 </div>
                                 <div class="col-lg-2 pt-5 text-center" style="font-size:11px;">
                                     <span style="font-size:17px;"> @string.Format("{0:c0}",Model[i].Price*Model[i].TempSqFt)</span>
@@ -131,3 +132,8 @@ else
     <p class="text-center">No items in your cart. Please add items to cart.</p>
 }
 
+@section Scripts{
+    @{
+    <partial name="_ValidationScriptsPartial" />
+    }
+}
