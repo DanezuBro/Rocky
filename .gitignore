@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/Rocky/bin/Debug/net6.0/appsettings.json
+/API/bin/Debug/net6.0/appsettings.Development.json
